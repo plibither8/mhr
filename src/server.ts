@@ -1,6 +1,6 @@
 import polka from 'polka';
 import redirect from '@polka/redirect';
-import { getTarget } from './utils';
+import * as db from './database';
 import config from '../config.json';
 
 const handlers = {
@@ -9,7 +9,7 @@ const handlers = {
    */
   aliasRedirection: (req, res, next) => {
     const { alias } = req.params;
-    const target = getTarget(alias);
+    const target = db.get(alias);
     if (target) {
       redirect(res, target);
       return;
