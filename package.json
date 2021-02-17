@@ -2,14 +2,19 @@
   "private": true,
   "scripts": {
     "dev": "nodemon",
-    "start": "ts-node src/server"
+    "start": "ts-node src/server",
+    "lint": "eslint --ext .ts src"
   },
   "dependencies": {
+    "@polka/redirect": "^1.0.0-next.0",
+    "eslint-config-airbnb": "^18.2.1",
     "lowdb": "^1.0.0",
-    "polka": "^0.5.2"
+    "polka": "^1.0.0-next.11"
   },
   "devDependencies": {
     "@types/node": "^14.14.25",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
     "tslint": "^6.1.3",
