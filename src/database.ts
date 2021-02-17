@@ -2,6 +2,11 @@ import low from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
 
 /* DB Config */
+interface UrlEntry {
+  alias: string;
+  target: string;
+}
+
 const dbPath = 'db.json';
 
 const adapter = new FileSync(dbPath);
@@ -18,7 +23,7 @@ database.defaults(initialDb).write();
  * Get the target corresponding to the alias
  * @param alias - String: Alias of entry
  */
-export function get(alias: string): string {
+export function get(alias: string): string | undefined {
   const [entry] = database
     .get('urls')
     .filter({ alias })
@@ -29,7 +34,7 @@ export function get(alias: string): string {
 /**
  * Get all alias-target pairs
  */
-export function getAll() {
+export function getAll(): UrlEntry[] {
   const urls = database
     .get('urls')
     .value();
@@ -41,18 +46,63 @@ export function getAll() {
  * @param alias String
  * @param target String
  */
-export function set(alias: string, target: string) {
+export function set(alias: string, target: string): boolean {
+  if (get(alias)) {
+    // error here!
+    return false;
+  }
 
+  database
+    .get('urls')
+    .push({ alias, target })
+    .write();
+
+  return true;
 }
 
-export function update(alias: string, target: string) {
+/**
+ * Update an alias with a new target
+ * @param alias String
+ * @param target String
+ */
+export function update(alias: string, target: string): boolean {
+  if (!get(alias)) {
+    // error here!
+    return false;
+  }
 
+  database
+    .get('urls')
+    .find({ alias })
+    .assign({ target })
+    .write();
+
+  return true;
 }
 
-export function remove(alias: string) {
+/**
+ * Remove an alias-target pair
+ * @param alias String
+ */
+export function remove(alias: string): boolean {
+  if (!get(alias)) {
+    // error here!
+    return false;
+  }
 
+  database
+    .get('urls')
+    .remove({ alias })
+    .write();
+
+  return true;
 }
 
-export function removeAll() {
-
+/**
+ * Remove all alias-target pairs
+ */
+export function removeAll(): void {
+  database
+    .set('urls', [])
+    .write();
 }
