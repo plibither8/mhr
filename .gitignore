@@ -1,5 +1,6 @@
 # Custom
 db.json
+config.json
 .vscode
 
 # Created by https://www.toptal.com/developers/gitignore/api/node

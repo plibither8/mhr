@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "resolveJsonModule": true,
     "esModuleInterop": true,
-    "target": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "noEmit": false,
     "outDir": "dist",
-    "noEmit": false
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "target": "es6"
   },
   "lib": ["ESNext"],
   "include": ["src/*.ts"]

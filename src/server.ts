@@ -1,31 +1,31 @@
 import polka from 'polka';
 import redirect from '@polka/redirect';
-import database from './database';
+import { getTarget } from './utils';
 import config from '../config.json';
 
-function getTarget(alias: string): string {
-  const [entry] = database
-    .get('urls')
-    .filter({ alias })
-    .value();
-  return entry?.target;
-}
+const handlers = {
+  /**
+   * Redirect to the alias' target, if found
+   */
+  aliasRedirection: (req, res, next) => {
+    const { alias } = req.params;
+    const target = getTarget(alias);
+    if (target) {
+      redirect(res, target);
+      return;
+    }
+    next();
+  },
 
-function aliasRedirection(req, res, next) {
-  const { alias } = req.params;
-  const target = getTarget(alias);
-  if (target) {
-    redirect(res, target);
-    return;
-  }
-  next();
-}
-
-function fallbackRedirection(req, res) {
-  redirect(res, config.fallbackUrl);
-}
+  /**
+   * Else, redirect to the fallback url specified in the config
+   */
+  fallbackRedirection: (req, res) => {
+    redirect(res, config.fallbackUrl);
+  },
+};
 
 polka()
-  .get('/:alias', aliasRedirection)
-  .get('*', fallbackRedirection)
+  .get('/:alias', handlers.aliasRedirection)
+  .get('*', handlers.fallbackRedirection)
   .listen(3000, () => console.log('running on port 3000'));
