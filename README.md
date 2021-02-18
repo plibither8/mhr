@@ -29,17 +29,14 @@ Open the chat with your bot and `/start` it.
 
 Interact with your Telegram bot to create, read, update or delete the aliases. Following are the available commands:
 
-**`/help`** - Show list of commands and help information.
-
-**`/cancel`** - Cancel the ongoing operation.
-
-**`/urls`** - Show list of shortened URLs along with their aliases.
-
-**`/new`** - Create a new alias for a URL.
-
-**`/update`** - Update the target URL for an existing alias.
-
-**`/delete`** - Delete an alias and redirection.
+| Command       | Description                                           |
+|---------------|-------------------------------------------------------|
+| **`/help`**   | Show list of commands and help information.           |
+| **`/cancel`** | Cancel the ongoing operation.                         |
+| **`/urls`**   | Show list of shortened URLs along with their aliases. |
+| **`/new`**    | Create a new alias for a URL.                         |
+| **`/update`** | Update the target URL for an existing alias.          |
+| **`/delete`** | Delete an alias and redirection.                      |
 
 ## License
 
