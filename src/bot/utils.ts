@@ -1,5 +1,6 @@
 import api from './api';
 import config from '../../config.json';
+import { ALIAS_REGEX } from './constants';
 
 export interface MessageEntity {
   offset: number;
@@ -29,4 +30,18 @@ export async function isAuthorized(id: number): Promise<boolean> {
 export function getCommandFromText(text: string, entities: MessageEntity[]): string | undefined {
   const [entity] = entities;
   return entity && entity.type === 'bot_command' ? text.substr(entity.offset + 1, entity.length - 1) : undefined;
+}
+
+export function isValidAlias(alias: string): boolean {
+  return ALIAS_REGEX.test(alias);
+}
+
+export function isValidUrl(url: string): boolean {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(url);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
