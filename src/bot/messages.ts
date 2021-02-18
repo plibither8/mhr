@@ -30,19 +30,19 @@ export const messages = {
 
   [States.DEFAULT]: {
     help: (): DefaultMessage => {
-      const message = `${format.underline('List of available commands:')}\n${commands
-        .map(({ command, description }) => format.escape(`/${command} ⇒ ${description}`))
-        .join('\n')}`;
+      const message = `${format.underline(
+        'List of available commands:'
+      )}\n\n${commands.map(({ command, description }) => format.escape(`/${command} ⇒ ${description}`)).join('\n')}`;
       return [message];
     },
 
     urls: (): DefaultMessage => {
       const urlList = db.getAll();
       const message = urlList.length
-        ? `${format.underline('List of URLs:')}\n${urlList
+        ? `${format.underline('List of URLs:')}\n\n${urlList
             .map(
               ({ alias, target }) =>
-                `${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
+                `• ${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
                   format.escape(target),
                   target
                 )}`
@@ -69,6 +69,8 @@ export const messages = {
 
   [States.ADD_ALIAS_TO_BE_RECEIVED]: {
     invalidAlias: (alias: string): string => format.escape(`Alias "${alias}" is invalid. Please try again.`),
+    aliasExists: (alias: string): string =>
+      format.escape(`Alias "${alias}" already exists, try again. Use /update to set a new target.`),
     sendTarget: (alias: string): string => format.escape(`Got it! Now send me the target URL for "${alias}"`),
   },
 

@@ -53,6 +53,12 @@ const stateHandlers = {
       return;
     }
 
+    if (db.get(alias)) {
+      const message = stateMessages.aliasExists(alias);
+      await api.sendMessage(message);
+      return;
+    }
+
     const message = stateMessages.sendTarget(alias);
     await api.sendMessage(message);
 
