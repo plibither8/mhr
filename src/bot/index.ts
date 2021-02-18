@@ -1,5 +1,5 @@
-import { commands } from './commands';
 import api from './api';
+import { commands } from './commands';
 import { stateSwitcher } from './states';
 import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
 

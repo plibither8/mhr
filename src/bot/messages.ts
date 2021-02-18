@@ -1,9 +1,9 @@
 import { markdownv2 as format } from 'telegram-format';
+import { chunkify } from './utils';
 import { commands } from './commands';
+import { ActiveState, States } from './states';
 import * as db from '../database';
 import config from '../../config.json';
-import { ActiveState, States } from './states';
-import { chunkify } from './utils';
 
 type DefaultMessage = [string, object?];
 

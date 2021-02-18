@@ -1,7 +1,5 @@
 import api from './api';
-import * as db from '../database';
 import config from '../../config.json';
-import { ALIAS_REGEX } from './constants';
 
 export interface MessageEntity {
   offset: number;
@@ -34,7 +32,8 @@ export function getCommandFromText(text: string, entities: MessageEntity[]): str
 }
 
 export function isValidAlias(alias: string): boolean {
-  return ALIAS_REGEX.test(alias);
+  const aliasRegex = /^[\w-.]+$/;
+  return aliasRegex.test(alias);
 }
 
 export function isValidUrl(url: string): boolean {
