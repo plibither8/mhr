@@ -1,11 +1,11 @@
 import api from './api';
 import { commands } from './commands';
-import { stateSwitcher } from './states';
+import { messageHandler } from './states';
 import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
 
-async function initialiseBot() {
+async function initialiseBot(forceReinit = false) {
   const initisationStatus = await isBotInitialised();
-  if (initisationStatus) return;
+  if (initisationStatus && !forceReinit) return;
 
   console.log('Initialising bot...');
 
@@ -19,20 +19,17 @@ async function initialiseBot() {
   console.log('Bot initialised!');
 }
 
-async function webhookHandler(req, res): Promise<void> {
-  const { message } = req.body;
-  const { from, text, entities = [] } = message;
-  if (isAuthorized(from?.id)) {
-    stateSwitcher({ text, entities });
-  }
-  res.end();
-}
-
 async function main() {
-  // await api.deleteWebhook();
   await initialiseBot();
 }
 
 main();
 
-export default webhookHandler;
+export default async function webhookHandler(req, res): Promise<void> {
+  const { message } = req.body;
+  const { from, text, entities = [] } = message;
+  if (isAuthorized(from?.id)) {
+    messageHandler({ text, entities });
+  }
+  res.end();
+}

@@ -1,7 +1,7 @@
 import { markdownv2 as format } from 'telegram-format';
 import { chunkify } from './utils';
 import { commands } from './commands';
-import { ActiveState, States } from './states';
+import { States } from './states';
 import * as db from '../database';
 import config from '../../config.json';
 
@@ -21,6 +21,11 @@ function getAliasKeyboard() {
 export const messages = {
   common: {
     operationsCancelled: format.escape('Ongoing operation cancelled. Off to a fresh start!'),
+    noUrlsAdded: format.escape("You haven't added any URLs! Start by /new and see /help."),
+    invalidDefaultCommand: (isCommand: boolean): DefaultMessage => {
+      const message = isCommand ? 'Unrecognized command! See /help' : 'Please enter a command. See /help';
+      return [format.escape(message)];
+    },
   },
 
   [States.DEFAULT]: {
@@ -43,39 +48,22 @@ export const messages = {
                 )}`
             )
             .join('\n')}`
-        : format.escape("You haven't added any URLs! Start by /new and see /help.");
+        : messages.common.noUrlsAdded;
       return [message, { disable_web_page_preview: true }];
     },
 
-    new: (): DefaultMessage => {
-      const message = format.escape('Awesome! Send me the alias');
-      ActiveState.state = States.ADD_ALIAS_TO_BE_RECEIVED;
-      return [message];
-    },
+    new: (): DefaultMessage => [format.escape('Awesome! Send me the alias')],
 
     update: (): DefaultMessage => {
-      if (!db.getAll().length) {
-        const message = "You haven't added any URLs! Start by /new and see /help.";
-        return [format.escape(message)];
-      }
+      if (!db.getAll().length) return [messages.common.noUrlsAdded];
       const message = format.escape('I see! Send the alias of the target you want updated');
-      ActiveState.state = States.UPDATE_ALIAS_TO_BE_RECEIVED;
       return [message, { reply_markup: getAliasKeyboard() }];
     },
 
     delete: (): DefaultMessage => {
-      if (!db.getAll().length) {
-        const message = "You haven't added any URLs! Start by /new and see /help.";
-        return [format.escape(message)];
-      }
+      if (!db.getAll().length) return [messages.common.noUrlsAdded];
       const message = format.escape('Cool! Send the alias you want deleted');
-      ActiveState.state = States.DELETE_ALIAS_TO_BE_RECEIVED;
       return [message, { reply_markup: getAliasKeyboard() }];
-    },
-
-    error: (isCommand: boolean): DefaultMessage => {
-      const message = isCommand ? 'Unrecognized command! See /help' : 'Please enter a command. See /help';
-      return [format.escape(message)];
     },
   },
 

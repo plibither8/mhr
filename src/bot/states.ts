@@ -19,37 +19,28 @@ export const enum States {
   DELETE_ALIAS_TO_BE_RECEIVED,
 }
 
-class State {
-  private _state: States = States.DEFAULT;
+const ActiveState: { state: States; stateData: any } = {
+  state: States.DEFAULT,
+  stateData: undefined,
+};
 
-  private _stateData: any = undefined;
-
-  get state(): States {
-    return this._state;
-  }
-
-  set state(newState: States) {
-    this._state = newState;
-  }
-
-  get stateData(): any {
-    return this._stateData;
-  }
-
-  set stateData(newStateData: any) {
-    this._stateData = newStateData;
-  }
-}
-
-export const ActiveState = new State();
+const nextStateFromDefault: { [key: string]: States } = {
+  new: States.ADD_ALIAS_TO_BE_RECEIVED,
+  update: States.UPDATE_ALIAS_TO_BE_RECEIVED,
+  delete: States.DELETE_ALIAS_TO_BE_RECEIVED,
+};
 
 const stateHandlers = {
   [States.DEFAULT]: async ({ text, entities }: MessageInfo) => {
     const stateMessages = messages[States.DEFAULT];
     const commandFromText = getCommandFromText(text, entities);
     const getMessage = stateMessages[commandFromText];
-    const [message, options] = getMessage ? await getMessage() : stateMessages.error(!!commandFromText);
+    const [message, options] = getMessage
+      ? await getMessage()
+      : messages.common.invalidDefaultCommand(!!commandFromText);
     await api.sendMessage(message, undefined, options);
+
+    ActiveState.state = nextStateFromDefault[commandFromText] || States.DEFAULT;
   },
 
   [States.ADD_ALIAS_TO_BE_RECEIVED]: async ({ text }: MessageInfo) => {
@@ -160,7 +151,7 @@ const stateHandlers = {
   },
 };
 
-export async function stateSwitcher(message: MessageInfo): Promise<void> {
+export async function messageHandler(message: MessageInfo): Promise<void> {
   const commandFromText = getCommandFromText(message.text, message.entities);
   if (commandFromText === 'cancel') {
     ActiveState.state = States.DEFAULT;
