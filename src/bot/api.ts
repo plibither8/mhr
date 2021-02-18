@@ -30,6 +30,7 @@ const api = {
       text,
       chat_id: chatId || config.bot.chatId,
       parse_mode: 'MarkdownV2',
+      reply_markup: { remove_keyboard: true },
       ...options,
     }),
 };

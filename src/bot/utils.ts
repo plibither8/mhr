@@ -1,4 +1,5 @@
 import api from './api';
+import * as db from '../database';
 import config from '../../config.json';
 import { ALIAS_REGEX } from './constants';
 
@@ -44,4 +45,11 @@ export function isValidUrl(url: string): boolean {
   } catch (err) {
     return false;
   }
+}
+
+export function chunkify(array: string[], size: number): string[][] {
+  return Array(Math.ceil(array.length / size))
+    .fill(undefined)
+    .map((_, index) => index * size)
+    .map(begin => array.slice(begin, begin + size));
 }

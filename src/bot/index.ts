@@ -1,5 +1,3 @@
-import * as db from '../database';
-import config from '../../config.json';
 import { commands } from './commands';
 import api from './api';
 import { stateSwitcher } from './states';

@@ -23,10 +23,7 @@ database.defaults(initialDb).write();
  * @param alias - String: Alias of entry
  */
 export function get(alias: string): string | undefined {
-  const [entry] = database
-    .get('urls')
-    .filter({ alias })
-    .value();
+  const [entry] = database.get('urls').filter({ alias }).value();
   return entry?.target;
 }
 
@@ -34,9 +31,7 @@ export function get(alias: string): string | undefined {
  * Get all alias-target pairs
  */
 export function getAll(): UrlEntry[] {
-  const urls = database
-    .get('urls')
-    .value();
+  const urls = database.get('urls').value();
   return urls;
 }
 
@@ -51,10 +46,7 @@ export function set(alias: string, target: string): boolean {
     return false;
   }
 
-  database
-    .get('urls')
-    .push({ alias, target })
-    .write();
+  database.get('urls').push({ alias, target }).write();
 
   return true;
 }
@@ -70,11 +62,7 @@ export function update(alias: string, target: string): boolean {
     return false;
   }
 
-  database
-    .get('urls')
-    .find({ alias })
-    .assign({ target })
-    .write();
+  database.get('urls').find({ alias }).assign({ target }).write();
 
   return true;
 }
@@ -89,10 +77,7 @@ export function remove(alias: string): boolean {
     return false;
   }
 
-  database
-    .get('urls')
-    .remove({ alias })
-    .write();
+  database.get('urls').remove({ alias }).write();
 
   return true;
 }
@@ -101,7 +86,5 @@ export function remove(alias: string): boolean {
  * Remove all alias-target pairs
  */
 export function removeAll(): void {
-  database
-    .set('urls', [])
-    .write();
+  database.set('urls', []).write();
 }
