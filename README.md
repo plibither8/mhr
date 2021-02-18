@@ -2,6 +2,8 @@
 
 > 🔗 A simple URL shortener, controlled via a Telegram bot.
 
+mhr = mihir, but shortened (\*_\*).
+
 ## Setup
 
 ### Create a Telegram Bot
