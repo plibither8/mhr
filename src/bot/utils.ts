@@ -1,5 +1,6 @@
 import api from './api';
 import config from '../../config.json';
+import messages from './messages';
 
 export interface MessageEntity {
   offset: number;
@@ -18,9 +19,12 @@ export async function isBotInitialised(): Promise<boolean> {
   return Boolean(url === createWebhookUrl());
 }
 
-export async function isAuthorized(id: number): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+export async function isAuthorized(from: any, text: string): Promise<boolean> {
+  const { id, first_name: firstName, is_bot: isBot } = from;
   if (id !== Number(config.bot.chatId)) {
-    await api.sendMessage('You are unauthorized to interact with this bot.', id);
+    api.sendMessage(messages.common.unauthorized, id);
+    api.sendMessage(messages.common.unauthorizedAlert(id, firstName, isBot, text));
     return false;
   }
   return true;

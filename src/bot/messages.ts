@@ -26,6 +26,12 @@ export const messages = {
       const message = isCommand ? 'Unrecognized command! See /help' : 'Please enter a command. See /help';
       return [format.escape(message)];
     },
+    unauthorized: format.escape('You are unauthorized to interact with this bot.'),
+    unauthorizedAlert: (id: number, firstName: string, isBot: boolean, text: string): string =>
+      format.escape(
+        `🚨 Unauthorized attempt!\nID: ${id}\nFirst name: ${firstName}\nBot? ${isBot ? 'Yes' : 'No'}\nText: ${text}`
+      ),
+    reinitialisedBot: (): string => format.escape(`♻️ Re-initialized bot with new domain: ${config.domain}`),
   },
 
   [States.DEFAULT]: {

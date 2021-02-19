@@ -1,5 +1,6 @@
 import api from './api';
 import { commands } from './commands';
+import messages from './messages';
 import { messageHandler } from './states';
 import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
 
@@ -15,20 +16,17 @@ async function initialiseBot(forceReinit = false) {
 
   // Set commands
   await api.setCommands({ commands });
+  await api.sendMessage(messages.common.reinitialisedBot(), undefined, { disable_web_page_preview: true });
 
   console.log('Bot initialised!');
 }
 
-async function main() {
-  await initialiseBot();
-}
-
-main();
+initialiseBot();
 
 export default async function webhookHandler(req, res): Promise<void> {
   const { message } = req.body;
   const { from, text, entities = [] } = message;
-  if (isAuthorized(from?.id)) {
+  if (await isAuthorized(from, text)) {
     messageHandler({ text, entities });
   }
   res.end();
