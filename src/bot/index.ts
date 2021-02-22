@@ -25,9 +25,11 @@ initialiseBot();
 
 export default async function webhookHandler(req, res): Promise<void> {
   const { message } = req.body;
-  const { from, text, entities = [] } = message;
-  if (await isAuthorized(from, text)) {
-    messageHandler({ text, entities });
+  if (message) {
+    const { from, text, entities = [] } = message;
+    if (await isAuthorized(from, text)) {
+      messageHandler({ text, entities });
+    }
   }
   res.end();
 }
