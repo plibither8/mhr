@@ -10,5 +10,5 @@
     "target": "es6"
   },
   "lib": ["ESNext"],
-  "include": ["src/*.ts", "src/bot/bot.ts"]
+  "include": ["src/**/*.ts"]
 }
