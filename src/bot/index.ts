@@ -9,15 +9,11 @@ async function initialiseBot(forceReinit = false) {
   if (initisationStatus && !forceReinit) return;
 
   console.log('Initialising bot...');
-
-  // Set webhook
-  const webhookUrl = createWebhookUrl();
-  await api.setWebhook({ url: webhookUrl });
-
-  // Set commands
-  await api.setCommands({ commands });
-  await api.sendMessage(messages.common.reinitialisedBot(), undefined, { disable_web_page_preview: true });
-
+  await Promise.all([
+    api.setWebhook({ url: createWebhookUrl() }),
+    api.setCommands({ commands }),
+    api.sendMessage(messages.common.reinitialisedBot(), undefined, { disable_web_page_preview: true }),
+  ]);
   console.log('Bot initialised!');
 }
 
