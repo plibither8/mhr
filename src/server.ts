@@ -4,6 +4,20 @@ import { json } from 'body-parser';
 import * as db from './database';
 import bot from './bot';
 import config from '../config.json';
+import messages from './bot/messages';
+import api from './bot/api';
+
+function getAlias(path: string): string {
+  let newPath = path.slice(1);
+  if (newPath[newPath.length - 1] === '/') newPath = newPath.slice(0, -1);
+  return newPath;
+}
+
+async function notify(req, alias: string, target: string) {
+  const ip: string = req.headers['x-forwarded-for'];
+  const [message, options] = await messages.common.redirectNotify(ip, alias, target);
+  api.sendMessage(message, undefined, options);
+}
 
 const handlers = {
   /**
@@ -14,11 +28,12 @@ const handlers = {
   /**
    * Redirect to the alias' target, if found
    */
-  aliasRedirection: (req, res, next) => {
-    const { alias } = req.params;
+  aliasRedirection: async (req, res, next) => {
+    const alias = getAlias(req.path);
     const target = db.get(alias);
     if (target) {
       redirect(res, target);
+      notify(req, alias, target);
       return;
     }
     next();
@@ -35,6 +50,6 @@ const handlers = {
 polka()
   .use(json())
   .post(`${config.bot.webhookPath}/${config.bot.token}`, handlers.bot)
-  .get('/:alias', handlers.aliasRedirection)
+  .get('*', handlers.aliasRedirection)
   .get('*', handlers.fallbackRedirection)
   .listen(3000, () => console.log('running on port 3000'));

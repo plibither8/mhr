@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import api from './api';
 import config from '../../config.json';
 import messages from './messages';
@@ -36,7 +37,7 @@ export function getCommandFromText(text: string, entities: MessageEntity[]): str
 }
 
 export function isValidAlias(alias: string): boolean {
-  const aliasRegex = /^[\w-.]+$/;
+  const aliasRegex = /^[\w-./]+$/;
   return aliasRegex.test(alias);
 }
 
@@ -55,4 +56,16 @@ export function chunkify(array: string[], size: number): string[][] {
     .fill(undefined)
     .map((_, index) => index * size)
     .map(begin => array.slice(begin, begin + size));
+}
+
+interface GeoData {
+  city: string;
+  regionName: string;
+  country: string;
+}
+
+export async function getGeoData(ip: string): Promise<GeoData> {
+  const res = await fetch(`http://ip-api.com/json/${ip}?fields=25`);
+  const data: GeoData = await res.json();
+  return data;
 }
