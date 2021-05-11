@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import api from './api';
 import config from '../../config.json';
 import messages from './messages';
+import { commandAliases } from './commands';
 
 export interface MessageEntity {
   offset: number;
@@ -33,7 +34,9 @@ export async function isAuthorized(from: any, text: string): Promise<boolean> {
 
 export function getCommandFromText(text: string, entities: MessageEntity[]): string | undefined {
   const [entity] = entities;
-  return entity && entity.type === 'bot_command' ? text.substr(entity.offset + 1, entity.length - 1) : undefined;
+  const command =
+    entity && entity.type === 'bot_command' ? text.substr(entity.offset + 1, entity.length - 1) : undefined;
+  return commandAliases[command] || command;
 }
 
 export function isValidAlias(alias: string): boolean {
