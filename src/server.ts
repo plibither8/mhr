@@ -1,22 +1,14 @@
-import polka from 'polka';
 import redirect from '@polka/redirect';
 import { json } from 'body-parser';
-import * as db from './database';
-import bot from './bot';
+import polka from 'polka';
 import config from '../config.json';
-import messages from './bot/messages';
-import api from './bot/api';
+import bot from './bot';
+import * as db from './database';
 
 function getAlias(path: string): string {
   let newPath = path.slice(1);
   if (newPath[newPath.length - 1] === '/') newPath = newPath.slice(0, -1);
   return newPath;
-}
-
-async function notify(req, alias: string, target: string) {
-  const ip: string = req.headers['x-forwarded-for'];
-  const [message, options] = await messages.common.redirectNotify(ip, alias, target);
-  api.sendMessage(message, undefined, options);
 }
 
 const handlers = {
@@ -33,7 +25,6 @@ const handlers = {
     const target = db.get(alias);
     if (target) {
       redirect(res, target);
-      notify(req, alias, target);
       return;
     }
     next();

@@ -1,9 +1,9 @@
 import { markdownv2 as format } from 'telegram-format';
-import { chunkify, getGeoData } from './utils';
+import config from '../../config.json';
+import * as db from '../database';
 import { commands } from './commands';
 import { States } from './states';
-import * as db from '../database';
-import config from '../../config.json';
+import { chunkify } from './utils';
 
 type DefaultMessage = [string, object?];
 
@@ -32,20 +32,6 @@ export const messages = {
         `🚨 Unauthorized attempt!\nID: ${id}\nFirst name: ${firstName}\nBot? ${isBot ? 'Yes' : 'No'}\nText: ${text}`
       ),
     reinitialisedBot: (): string => format.escape(`♻️ Re-initialized bot with new domain: ${config.domain}`),
-    redirectNotify: async (ip: string, alias: string, target: string): Promise<DefaultMessage> => {
-      let message = `${format.bold(format.escape('➡️ URL Redirected:'))} ${format.url(
-        format.bold(format.escape(alias)),
-        target
-      )}`;
-      if (ip) {
-        const geoData = await getGeoData(ip);
-        message += `
-${format.bold('City:')} ${format.escape(`${geoData.city}, ${geoData.regionName}`)}
-${format.bold('Country:')} ${format.escape(geoData.country)}
-${format.bold('IP:')} ${format.monospace(ip)}`;
-      }
-      return [message, { disable_web_page_preview: true }];
-    },
   },
 
   [States.DEFAULT]: {
