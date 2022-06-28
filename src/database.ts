@@ -1,5 +1,4 @@
-import low from 'lowdb';
-import FileSync from 'lowdb/adapters/FileSync';
+import { Low, JSONFile } from 'lowdb';
 
 /* DB Config */
 interface UrlEntry {
@@ -7,15 +6,21 @@ interface UrlEntry {
   target: string;
 }
 
-const dbPath = 'db.json';
-const adapter = new FileSync(dbPath);
-const database = low(adapter);
+interface Schema {
+  urls: UrlEntry[]
+}
 
-// Write initial, default content, if empty
-const initialDb = {
-  urls: [],
-};
-database.defaults(initialDb).write();
+const dbPath = 'db.json';
+const adapter = new JSONFile<Schema>(dbPath);
+const database = new Low<Schema>(adapter);
+
+async function start() {
+  await database.read();
+  // Set default data
+  database.data ||= { urls: [] };
+  database.write();
+}
+start()
 
 /* API */
 /**
@@ -23,7 +28,7 @@ database.defaults(initialDb).write();
  * @param alias - String: Alias of entry
  */
 export function get(alias: string): string | undefined {
-  const [entry] = database.get('urls').filter({ alias }).value();
+  const entry = database.data.urls.find(url => url.alias === alias);
   return entry?.target;
 }
 
@@ -31,7 +36,7 @@ export function get(alias: string): string | undefined {
  * Get all alias-target pairs
  */
 export function getAll(): UrlEntry[] {
-  const urls = database.get('urls').value();
+  const { urls } = database.data;
   return urls;
 }
 
@@ -46,7 +51,8 @@ export function set(alias: string, target: string): boolean {
     return false;
   }
 
-  database.get('urls').push({ alias, target }).write();
+  database.data.urls.push({ alias, target });
+  database.write();
 
   return true;
 }
@@ -62,7 +68,9 @@ export function update(alias: string, target: string): boolean {
     return false;
   }
 
-  database.get('urls').find({ alias }).assign({ target }).write();
+  const entry = database.data.urls.find(url => url.alias === alias);
+  entry.target = target;
+  database.write()
 
   return true;
 }
@@ -77,7 +85,9 @@ export function remove(alias: string): boolean {
     return false;
   }
 
-  database.get('urls').remove({ alias }).write();
+  const index = database.data.urls.findIndex(url => url.alias === alias);
+  database.data.urls.splice(index, 1);
+  database.write();
 
   return true;
 }
@@ -86,5 +96,6 @@ export function remove(alias: string): boolean {
  * Remove all alias-target pairs
  */
 export function removeAll(): void {
-  database.set('urls', []).write();
+  database.data = { urls: [] }
+  database.write();
 }

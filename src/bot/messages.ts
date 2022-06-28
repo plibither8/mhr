@@ -1,9 +1,9 @@
 import { markdownv2 as format } from 'telegram-format';
-import config from '../../config.json';
-import * as db from '../database';
-import { commands } from './commands';
-import { States } from './states';
-import { chunkify } from './utils';
+import config from '../../config.js';
+import * as db from '../database.js';
+import { commands } from './commands.js';
+import { States } from './states.js';
+import { chunkify } from './utils.js';
 
 type DefaultMessage = [string, object?];
 
@@ -46,14 +46,14 @@ export const messages = {
       const urlList = db.getAll();
       const message = urlList.length
         ? `${format.underline('List of URLs:')}\n\n${urlList
-            .map(
-              ({ alias, target }) =>
-                `• ${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
-                  format.escape(target),
-                  target
-                )}`
-            )
-            .join('\n')}`
+          .map(
+            ({ alias, target }) =>
+              `• ${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
+                format.escape(target),
+                target
+              )}`
+          )
+          .join('\n')}`
         : messages.common.noUrlsAdded;
       return [message, { disable_web_page_preview: true }];
     },

@@ -1,8 +1,8 @@
-import api from './api';
-import { commands } from './commands';
-import messages from './messages';
-import { messageHandler } from './states';
-import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
+import api from './api.js';
+import { commands } from './commands.js';
+import messages from './messages.js';
+import { messageHandler } from './states.js';
+import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils.js';
 
 async function initialiseBot(forceReinit = false) {
   const initisationStatus = await isBotInitialised();

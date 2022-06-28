@@ -1,14 +1,18 @@
-import redirect from '@polka/redirect';
-import { json } from 'body-parser';
+import bodyParser from 'body-parser';
 import polka from 'polka';
-import config from '../config.json';
-import bot from './bot';
-import * as db from './database';
+import config from '../config.js';
+import bot from './bot/index.js';
+import * as db from './database.js';
 
 function getAlias(path: string): string {
   let newPath = path.slice(1);
   if (newPath[newPath.length - 1] === '/') newPath = newPath.slice(0, -1);
   return newPath;
+}
+
+function redirect(res: any, target: string) {
+  res.writeHead(301, { Location: target });
+  res.end();
 }
 
 const handlers = {
@@ -24,7 +28,7 @@ const handlers = {
     const alias = getAlias(req.path);
     const target = db.get(alias);
     if (target) {
-      redirect(res, target);
+      redirect(res, target)
       return;
     }
     next();
@@ -39,7 +43,7 @@ const handlers = {
 };
 
 polka()
-  .use(json())
+  .use(bodyParser.json())
   .post(`${config.bot.webhookPath}/${config.bot.token}`, handlers.bot)
   .get('*', handlers.aliasRedirection)
   .get('*', handlers.fallbackRedirection)

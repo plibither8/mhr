@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
-import api from './api';
-import config from '../../config.json';
-import messages from './messages';
-import { commandAliases } from './commands';
+import got from 'got';
+import api from './api.js';
+import config from '../../config.js';
+import messages from './messages.js';
+import { commandAliases } from './commands.js';
 
 export interface MessageEntity {
   offset: number;
@@ -68,7 +68,6 @@ interface GeoData {
 }
 
 export async function getGeoData(ip: string): Promise<GeoData> {
-  const res = await fetch(`http://ip-api.com/json/${ip}?fields=25`);
-  const data: GeoData = await res.json();
+  const data = await got(`http://ip-api.com/json/${ip}?fields=25`).json<GeoData>();
   return data;
 }

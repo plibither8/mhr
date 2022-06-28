@@ -1,4 +1,4 @@
-{
+export default {
   "domain": "https://mhr.cx",
   "fallbackUrl": "https://mihir.ch",
   "bot": {

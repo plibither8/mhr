@@ -20,8 +20,8 @@ The `chat_id` identifies you on Telegram. You can get it by `/start`ing a chat w
 
 1. Clone this repo: `git clone https://github.com/plibither8/mhr`
 2. Install dependencies: `npm install`
-3. Create `config.json` file from [`config.example.json`](config.example.json) file: `cp config.example.json config.json`
-4. Edit the `config.json` file with **your values**
+3. Create `config.ts` file from [`config.example.ts`](config.example.ts) file: `cp config.example.ts config.ts`
+4. Edit the `config.ts` file with **your values**
 5. Start up the server and use the bot: `npm start`
 6. Party hard.
 

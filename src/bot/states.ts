@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import api from './api';
-import messages from './messages';
-import * as db from '../database';
-import { getCommandFromText, isValidAlias, isValidUrl, MessageEntity } from './utils';
+import api from './api.js';
+import messages from './messages.js';
+import * as db from '../database.js';
+import { getCommandFromText, isValidAlias, isValidUrl, MessageEntity } from './utils.js';
 
 interface MessageInfo {
   text: string;

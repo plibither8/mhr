@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "ES2020",
     "moduleResolution": "node",
     "noEmit": false,
     "outDir": "dist",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "target": "es6"
+    "target": "es6",
+    "baseUrl": ".",
+    "rootDir": "./",
+    "paths": {
+      "src/*": ["./src/*"]
+    }
   },
   "lib": ["ESNext"],
   "include": ["src/**/*.ts"]
