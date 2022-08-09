@@ -12,7 +12,7 @@ interface Env {
 const router = Router();
 
 // Initialise bot
-router.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, initialiseBot)
+router.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, initialiseBot);
 
 // Handle Telegram webhook requests
 router.post(`${config.bot.webhookPath}/${config.bot.token}`, webhookHandler);

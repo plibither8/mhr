@@ -25,5 +25,5 @@ export const webhookHandler = async (request: Request) => {
       await messageHandler({ text, entities });
     }
   }
-  return new Response("Success");
+  return new Response('Success');
 };
