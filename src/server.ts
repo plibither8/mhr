@@ -1,50 +1,38 @@
-import bodyParser from 'body-parser';
-import polka from 'polka';
-import config from '../config.js';
-import bot from './bot/index.js';
-import * as db from './database.js';
+import { Router } from 'itty-router';
 
-function getAlias(path: string): string {
-  let newPath = path.slice(1);
-  if (newPath[newPath.length - 1] === '/') newPath = newPath.slice(0, -1);
-  return newPath;
+import config from '../config';
+import { initialiseBot, webhookHandler } from './bot/index';
+import { getAlias, prefix } from './bot/utils';
+import env, { setNamepace } from './kv';
+
+interface Env {
+  MHR: KVNamespace;
 }
 
-function redirect(res: any, target: string) {
-  res.writeHead(301, { Location: target });
-  res.end();
-}
+const router = Router();
 
-const handlers = {
-  /**
-   * The bot handler
-   */
-  bot,
+// Initialise bot
+router.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, initialiseBot)
 
-  /**
-   * Redirect to the alias' target, if found
-   */
-  aliasRedirection: async (req, res, next) => {
-    const alias = getAlias(req.path);
-    const target = db.get(alias);
-    if (target) {
-      redirect(res, target)
-      return;
-    }
-    next();
-  },
+// Handle Telegram webhook requests
+router.post(`${config.bot.webhookPath}/${config.bot.token}`, webhookHandler);
 
-  /**
-   * Else, redirect to the fallback url specified in the config
-   */
-  fallbackRedirection: (req, res) => {
-    redirect(res, config.fallbackUrl);
+// Handle URL shortener redirects
+router.get('*', async request => {
+  const { pathname } = new URL(request.url);
+  const alias = getAlias(pathname);
+  const target = await env.MHR.get(prefix(alias, 'alias'));
+  if (target) return Response.redirect(target);
+});
+
+// All other GETs
+router.get('*', async () => {
+  return Response.redirect(config.fallbackUrl);
+});
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    setNamepace('MHR', env.MHR);
+    return router.handle(request, env);
   },
 };
-
-polka()
-  .use(bodyParser.json())
-  .post(`${config.bot.webhookPath}/${config.bot.token}`, handlers.bot)
-  .get('*', handlers.aliasRedirection)
-  .get('*', handlers.fallbackRedirection)
-  .listen(3000, () => console.log('running on port 3000'));

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import api from './api.js';
-import messages from './messages.js';
-import * as db from '../database.js';
-import { getCommandFromText, isValidAlias, isValidUrl, MessageEntity } from './utils.js';
+import api from './api';
+import messages from './messages';
+import { getCommandFromText, isValidAlias, isValidUrl, MessageEntity, prefix } from './utils';
+import env from '../kv';
 
 interface MessageInfo {
   text: string;
@@ -53,12 +53,11 @@ const stateHandlers = {
       return;
     }
 
-    if (db.get(alias)) {
+    if (await env.MHR.get(alias)) {
       const message = stateMessages.aliasExists(alias);
       await api.sendMessage(message);
       return;
     }
-
     const message = stateMessages.sendTarget(alias);
     await api.sendMessage(message);
 
@@ -77,7 +76,7 @@ const stateHandlers = {
     }
 
     const { alias } = ActiveState.stateData;
-    db.set(alias, target);
+    await env.MHR.put(prefix(alias, 'alias'), target);
 
     const message = stateMessages.targetSet(alias, target);
     await api.sendMessage(message, undefined, { disable_web_page_preview: true });
@@ -91,15 +90,15 @@ const stateHandlers = {
     const alias = text.trim();
 
     if (!isValidAlias(alias)) {
-      const [message, options] = stateMessages.invalidAlias(alias);
+      const [message, options] = await stateMessages.invalidAlias(alias);
       await api.sendMessage(message, undefined, options);
       return;
     }
 
-    const target = db.get(alias);
+    const target = await env.MHR.get(prefix(alias, 'alias'));
 
     if (!target) {
-      const [message, options] = stateMessages.aliasNotFound(alias);
+      const [message, options] = await stateMessages.aliasNotFound(alias);
       await api.sendMessage(message, undefined, options);
       return;
     }
@@ -122,7 +121,7 @@ const stateHandlers = {
     }
 
     const { alias } = ActiveState.stateData;
-    db.update(alias, target);
+    await env.MHR.put(prefix(alias, 'alias'), target);
 
     const message = stateMessages.targetUpdated(alias, target);
     await api.sendMessage(message, undefined, { disable_web_page_preview: true });
@@ -136,20 +135,20 @@ const stateHandlers = {
     const alias = text.trim();
 
     if (!isValidAlias(alias)) {
-      const [message, options] = stateMessages.invalidAlias(alias);
+      const [message, options] = await stateMessages.invalidAlias(alias);
       await api.sendMessage(message, undefined, options);
       return;
     }
 
-    const target = db.get(alias);
+    const target = await env.MHR.get(prefix(alias, 'alias'));
 
     if (!target) {
-      const [message, options] = stateMessages.aliasNotFound(alias);
+      const [message, options] = await stateMessages.aliasNotFound(alias);
       await api.sendMessage(message, undefined, options);
       return;
     }
 
-    db.remove(alias);
+    await env.MHR.delete(prefix(alias, 'alias'));
     const message = stateMessages.aliasDeleted(alias, target);
     await api.sendMessage(message, undefined, { disable_web_page_preview: true });
 

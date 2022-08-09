@@ -1,10 +1,10 @@
-import api from './api.js';
-import { commands } from './commands.js';
-import messages from './messages.js';
-import { messageHandler } from './states.js';
-import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils.js';
+import api from './api';
+import { commands } from './commands';
+import messages from './messages';
+import { messageHandler } from './states';
+import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
 
-async function initialiseBot(forceReinit = false) {
+export async function initialiseBot(forceReinit = false) {
   const initisationStatus = await isBotInitialised();
   if (initisationStatus && !forceReinit) return;
 
@@ -17,15 +17,13 @@ async function initialiseBot(forceReinit = false) {
   console.log('Bot initialised!');
 }
 
-initialiseBot();
-
-export default async function webhookHandler(req, res): Promise<void> {
-  const { message } = req.body;
+export const webhookHandler = async (request: Request) => {
+  const { message } = await request.json();
   if (message) {
     const { from, text, entities = [] } = message;
     if (await isAuthorized(from, text)) {
-      messageHandler({ text, entities });
+      await messageHandler({ text, entities });
     }
   }
-  res.end();
-}
+  return new Response("Success");
+};

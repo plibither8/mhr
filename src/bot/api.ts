@@ -1,5 +1,4 @@
-import got, { OptionsOfJSONResponseBody } from "got";
-import config from '../../config.js';
+import config from '../../config';
 
 interface TgJsonResponse {
   ok: boolean;
@@ -9,14 +8,16 @@ interface TgJsonResponse {
 type ApiResponse = Promise<TgJsonResponse>;
 type RequestMethod = 'GET' | 'POST' | 'DELETE';
 
-function makeRequest(method: RequestMethod, endpoint: string, data: unknown = undefined): ApiResponse {
+async function makeRequest(method: RequestMethod, endpoint: string, data: unknown = undefined): ApiResponse {
   const TG_API_BASE = `https://api.telegram.org/bot${config.bot.token}`;
-  const requestOptions: OptionsOfJSONResponseBody = { method };
+  const requestOptions: RequestInit = { method };
   if (data) {
     requestOptions.body = JSON.stringify(data);
     requestOptions.headers = { 'Content-Type': 'application/json' };
   }
-  return got(`${TG_API_BASE}/${endpoint}`, requestOptions).json<TgJsonResponse>();
+  const response = await fetch(`${TG_API_BASE}/${endpoint}`, requestOptions);
+  const json = await response.json<TgJsonResponse>();
+  return json;
 }
 
 const api = {

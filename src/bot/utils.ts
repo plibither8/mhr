@@ -1,14 +1,17 @@
-import got from 'got';
-import api from './api.js';
-import config from '../../config.js';
-import messages from './messages.js';
-import { commandAliases } from './commands.js';
+import api from './api';
+import config from '../../config';
+import messages from './messages';
+import { commandAliases } from './commands';
 
 export interface MessageEntity {
   offset: number;
   length: number;
   type: string;
 }
+
+export const prefix = (base: string, prefix: string): string => `${prefix}:${base}`;
+
+export const unprefix = (base: string, prefix: string): string => base.replace(new RegExp(`^${prefix}:`), '');
 
 export function createWebhookUrl(): string {
   return `${config.domain}${config.bot.webhookPath}/${config.bot.token}`;
@@ -30,6 +33,13 @@ export async function isAuthorized(from: any, text: string): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+// Get the alias from the pathname
+export function getAlias(path: string): string {
+  let newPath = path.slice(1);
+  if (newPath[newPath.length - 1] === '/') newPath = newPath.slice(0, -1);
+  return newPath;
 }
 
 export function getCommandFromText(text: string, entities: MessageEntity[]): string | undefined {
@@ -68,6 +78,7 @@ interface GeoData {
 }
 
 export async function getGeoData(ip: string): Promise<GeoData> {
-  const data = await got(`http://ip-api.com/json/${ip}?fields=25`).json<GeoData>();
+  const response = await fetch(`http://ip-api.com/json/${ip}?fields=25`);
+  const data = await response.json<GeoData>();
   return data;
 }

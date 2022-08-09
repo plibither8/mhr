@@ -1,0 +1,7 @@
+name = "mhr"
+main = "src/server.ts"
+compatibility_date = "2022-08-09"
+
+kv_namespaces = [
+  { binding = "MHR", id = "", preview_id = "" }
+]

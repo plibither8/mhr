@@ -1,16 +1,16 @@
 import { markdownv2 as format } from 'telegram-format';
-import config from '../../config.js';
-import * as db from '../database.js';
-import { commands } from './commands.js';
-import { States } from './states.js';
-import { chunkify } from './utils.js';
+import config from '../../config';
+import { commands } from './commands';
+import { States } from './states';
+import { chunkify, unprefix } from './utils';
+import env from '../kv';
 
 type DefaultMessage = [string, object?];
 
-function getAliasKeyboard() {
+async function getAliasKeyboard() {
   return {
     keyboard: chunkify(
-      db.getAll().map(({ alias }) => alias),
+      (await env.MHR.list({ prefix: 'alias' })).keys.map(({ name }) => unprefix(name, 'alias')),
       2
     ),
     resize_keyboard: true,
@@ -36,40 +36,46 @@ export const messages = {
 
   [States.DEFAULT]: {
     help: (): DefaultMessage => {
-      const message = `${format.underline(
-        'List of available commands:'
-      )}\n\n${commands.map(({ command, description }) => format.escape(`/${command} ⇒ ${description}`)).join('\n')}`;
+      const message = `${format.underline('List of available commands:')}\n\n${commands
+        .map(({ command, description }) => format.escape(`/${command} ⇒ ${description}`))
+        .join('\n')}`;
       return [message];
     },
 
-    urls: (): DefaultMessage => {
-      const urlList = db.getAll();
+    urls: async (): Promise<DefaultMessage> => {
+      const list = await env.MHR.list({ prefix: 'alias' });
+      const urlList = await Promise.all(
+        list.keys.map(async ({ name }) => ({
+          alias: unprefix(name, 'alias'),
+          target: await env.MHR.get(name),
+        }))
+      );
       const message = urlList.length
         ? `${format.underline('List of URLs:')}\n\n${urlList
-          .map(
-            ({ alias, target }) =>
-              `• ${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
-                format.escape(target),
-                target
-              )}`
-          )
-          .join('\n')}`
+            .map(
+              ({ alias, target }) =>
+                `• ${format.url(format.bold(format.escape(alias)), `${config.domain}/${alias}`)} ⇒ ${format.url(
+                  format.escape(target),
+                  target
+                )}`
+            )
+            .join('\n')}`
         : messages.common.noUrlsAdded;
       return [message, { disable_web_page_preview: true }];
     },
 
     new: (): DefaultMessage => [format.escape('Awesome! Send me the alias')],
 
-    update: (): DefaultMessage => {
-      if (!db.getAll().length) return [messages.common.noUrlsAdded];
+    update: async (): Promise<DefaultMessage> => {
+      if (!(await env.MHR.list({ prefix: 'alias' })).keys.length) return [messages.common.noUrlsAdded];
       const message = format.escape('I see! Send the alias of the target you want updated');
-      return [message, { reply_markup: getAliasKeyboard() }];
+      return [message, { reply_markup: await getAliasKeyboard() }];
     },
 
-    delete: (): DefaultMessage => {
-      if (!db.getAll().length) return [messages.common.noUrlsAdded];
+    delete: async (): Promise<DefaultMessage> => {
+      if (!(await env.MHR.list({ prefix: 'alias' })).keys.length) return [messages.common.noUrlsAdded];
       const message = format.escape('Cool! Send the alias you want deleted');
-      return [message, { reply_markup: getAliasKeyboard() }];
+      return [message, { reply_markup: await getAliasKeyboard() }];
     },
   },
 
@@ -90,13 +96,13 @@ export const messages = {
   },
 
   [States.UPDATE_ALIAS_TO_BE_RECEIVED]: {
-    invalidAlias: (alias: string): DefaultMessage => [
+    invalidAlias: async (alias: string): Promise<DefaultMessage> => [
       format.escape(`Alias "${alias}" is invalid. Please try again.`),
-      { reply_markup: getAliasKeyboard() },
+      { reply_markup: await getAliasKeyboard() },
     ],
-    aliasNotFound: (alias: string): DefaultMessage => [
+    aliasNotFound: async (alias: string): Promise<DefaultMessage> => [
       format.escape(`No alias "${alias}" has been created. Choose one from the list or create one using /new.`),
-      { reply_markup: getAliasKeyboard() },
+      { reply_markup: await getAliasKeyboard() },
     ],
     sendTarget: (alias: string): string => format.escape(`Got it! Now send me the new target URL for "${alias}"`),
   },
@@ -111,13 +117,13 @@ export const messages = {
   },
 
   [States.DELETE_ALIAS_TO_BE_RECEIVED]: {
-    invalidAlias: (alias: string): DefaultMessage => [
+    invalidAlias: async (alias: string): Promise<DefaultMessage> => [
       format.escape(`Alias "${alias}" is invalid. Please try again.`),
-      { reply_markup: getAliasKeyboard() },
+      { reply_markup: await getAliasKeyboard() },
     ],
-    aliasNotFound: (alias: string): DefaultMessage => [
+    aliasNotFound: async (alias: string): Promise<DefaultMessage> => [
       format.escape(`No alias "${alias}" has been created. Please enter one from the existing list.`),
-      { reply_markup: getAliasKeyboard() },
+      { reply_markup: await getAliasKeyboard() },
     ],
     aliasDeleted: (alias: string, target: string): string =>
       `${format.escape(`Done! Alias "${alias}" for`)} ${format.url(format.escape(target), target)} ${format.escape(
