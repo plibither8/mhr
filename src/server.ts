@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import config from '../config';
 import { initialiseBot, webhookHandler } from './bot/index';
 import { getAlias, prefix } from './bot/utils';
-import env, { setNamepace } from './kv';
+import { setNamepace } from './kv';
 
 export interface Env {
   MHR: KVNamespace;
@@ -10,7 +10,10 @@ export interface Env {
 
 const app = new Hono<Env>();
 
-app.use(async ctx => setNamepace('MHR', ctx.env.MHR));
+app.use(async (ctx, next) => {
+  setNamepace('MHR', ctx.env.MHR);
+  await next();
+});
 
 // Initialise bot
 app.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, async ctx => {
@@ -22,14 +25,15 @@ app.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, async ctx =>
 app.post(`${config.bot.webhookPath}/${config.bot.token}`, webhookHandler);
 
 // Handle URL shortener redirects
-app.get('*', async ctx => {
+app.get('*', async (ctx, next) => {
   const { pathname } = new URL(ctx.req.url);
   const alias = getAlias(pathname);
-  const target = await env.MHR.get(prefix(alias, 'alias'));
-  if (target) return Response.redirect(target);
+  const target = await ctx.env.MHR.get(prefix(alias, 'alias'));
+  if (target) return ctx.redirect(target);
+  await next();
 });
 
 // All other GETs
-app.get('*', async ctx => ctx.redirect(config.fallbackUrl));
+app.get('*', ctx => ctx.redirect(config.fallbackUrl));
 
 export default app;
