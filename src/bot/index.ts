@@ -1,8 +1,10 @@
+import { Handler } from 'hono';
+import { Env } from '../server';
 import api from './api';
 import { commands } from './commands';
 import messages from './messages';
 import { messageHandler } from './states';
-import { createWebhookUrl, isBotInitialised, isAuthorized } from './utils';
+import { createWebhookUrl, isAuthorized, isBotInitialised } from './utils';
 
 export async function initialiseBot(forceReinit = false) {
   const initisationStatus = await isBotInitialised();
@@ -17,13 +19,13 @@ export async function initialiseBot(forceReinit = false) {
   console.log('Bot initialised!');
 }
 
-export const webhookHandler = async (request: Request) => {
-  const { message } = await request.json();
+export const webhookHandler: Handler<string, Env> = async ctx => {
+  const { message } = await ctx.req.json();
   if (message) {
     const { from, text, entities = [] } = message;
     if (await isAuthorized(from, text)) {
       await messageHandler({ text, entities });
     }
   }
-  return new Response('Success');
+  return ctx.text('Success');
 };

@@ -8,7 +8,7 @@ specifiers:
   eslint-config-airbnb: ^19.0.4
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier: ^4.1.0
-  itty-router: ^2.6.1
+  hono: ^2.0.9
   nodemon: ^2.0.18
   prettier: ^2.7.1
   telegram-format: ^2.1.0
@@ -17,7 +17,7 @@ specifiers:
   wrangler: 2.0.24
 
 dependencies:
-  itty-router: 2.6.1
+  hono: 2.0.9
   telegram-format: 2.1.0
 
 devDependencies:
@@ -1275,6 +1275,11 @@ packages:
       function-bind: 1.1.1
     dev: true
 
+  /hono/2.0.9:
+    resolution: {integrity: sha512-Uw/CQVeNBCSjXFgv5N1TDOSypRmDNkS0nFzGV40B94YmNQnkW+xod82ElApTstotR5ps3Kxb2JJ/EkSaWkT81w==}
+    engines: {node: '>=11.0.0'}
+    dev: false
+
   /html-rewriter-wasm/0.4.1:
     resolution: {integrity: sha512-lNovG8CMCCmcVB1Q7xggMSf7tqPCijZXaH4gL6iE8BFghdQCbaY5Met9i1x2Ex8m/cZHDUtXK9H6/znKamRP8Q==}
     dev: true
@@ -1458,10 +1463,6 @@ packages:
   /is-yarn-global/0.3.0:
     resolution: {integrity: sha512-VjSeb/lHmkoyd8ryPVIKvOCn4D1koMqY+vqyjjUfc3xyKtP4dYOxM44sZrnqQSzSds3xyOrUTLTC9LVCVgLngw==}
     dev: true
-
-  /itty-router/2.6.1:
-    resolution: {integrity: sha512-l9gxWe5TOLUESYnBn85Jxd6tIZLWdRX5YKkHIBfSgbNQ7UFPNUGuWihRV+LlEbfJJIzgLmhwAbaWRi5yWJm8kg==}
-    dev: false
 
   /json-buffer/3.0.0:
     resolution: {integrity: sha512-CuUqjv0FUZIdXkHPI8MezCnFCdaTAacej1TZYulLoAg1h/PhwkdXFN4V/gzY4g+fMBCOV2xF+rp7t2XD2ns/NQ==}

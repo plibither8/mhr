@@ -9,7 +9,7 @@
     "lint:fix": "eslint --ext .ts src --fix"
   },
   "dependencies": {
-    "itty-router": "^2.6.1",
+    "hono": "^2.0.9",
     "telegram-format": "^2.1.0"
   },
   "devDependencies": {

@@ -1,38 +1,35 @@
-import { Router } from 'itty-router';
-
+import { Hono } from 'hono';
 import config from '../config';
 import { initialiseBot, webhookHandler } from './bot/index';
 import { getAlias, prefix } from './bot/utils';
 import env, { setNamepace } from './kv';
 
-interface Env {
+export interface Env {
   MHR: KVNamespace;
 }
 
-const router = Router();
+const app = new Hono<Env>();
+
+app.use(async ctx => setNamepace('MHR', ctx.env.MHR));
 
 // Initialise bot
-router.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, initialiseBot);
+app.get(`${config.bot.webhookPath}/${config.bot.token}/initialise`, async ctx => {
+  await initialiseBot();
+  return ctx.text('Bot initialized');
+});
 
 // Handle Telegram webhook requests
-router.post(`${config.bot.webhookPath}/${config.bot.token}`, webhookHandler);
+app.post(`${config.bot.webhookPath}/${config.bot.token}`, webhookHandler);
 
 // Handle URL shortener redirects
-router.get('*', async request => {
-  const { pathname } = new URL(request.url);
+app.get('*', async ctx => {
+  const { pathname } = new URL(ctx.req.url);
   const alias = getAlias(pathname);
   const target = await env.MHR.get(prefix(alias, 'alias'));
   if (target) return Response.redirect(target);
 });
 
 // All other GETs
-router.get('*', async () => {
-  return Response.redirect(config.fallbackUrl);
-});
+app.get('*', async ctx => ctx.redirect(config.fallbackUrl));
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    setNamepace('MHR', env.MHR);
-    return router.handle(request, env);
-  },
-};
+export default app;
